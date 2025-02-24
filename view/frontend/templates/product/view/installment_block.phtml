@@ -34,24 +34,30 @@ $canShowBlock = $block->canShowBlock();
 
 <script>
     var maxDiscount = <?= $maxDiscountCount ?>;
+    function checkShowWidget(){
 
+        const mainPrice = document.getElementById('product-price-' + <?= $productId ?>).querySelector('.price');
+        let price = mainPrice.innerHTML.match(/-?\d+(\.\d+)?/);
+        const oldPriceHTML = document.getElementById('old-price-' + <?= $productId ?>).querySelector('.price');
+        price = parseFloat(price[0])
+        let oldPrice = oldPriceHTML.innerHTML.match(/-?\d+(\.\d+)?/);
+        oldPrice = parseFloat(oldPrice[0])
+        let discount = (oldPrice - price) / oldPrice * 100;
+        if (discount > maxDiscount) {
+            document.querySelector('.installment-block').style.display = 'none';
+        } else {
+            document.querySelector('.installment-block').style.display = 'block';
+            const installmentAmount = document.querySelector('.alifshop-installment-amount').querySelector('.price');
+            installmentAmount.innerHTML = `PKR ${(price / <?= $numberOfInstallments; ?>).toFixed(2)}`;
+        }
+    }
+    checkShowWidget()
     document.body.addEventListener('click', (event) => {
         if (event.target.classList.contains('swatch-option')) {
-            const mainPrice = document.getElementById('product-price-' + <?= $productId ?>).querySelector('.price');
-            let price = mainPrice.innerHTML.match(/-?\d+(\.\d+)?/);
-            const oldPriceHTML = document.getElementById('old-price-' + <?= $productId ?>).querySelector('.price');
-            price = parseFloat(price[0])
-            let oldPrice = oldPriceHTML.innerHTML.match(/-?\d+(\.\d+)?/);
-            oldPrice = parseFloat(oldPrice[0])
-            let discount = (oldPrice - price) / oldPrice * 100;
-            if (discount > maxDiscount) {
-                document.querySelector('.installment-block').style.display = 'none';
-            } else {
-                document.querySelector('.installment-block').style.display = 'block';
-                const installmentAmount = document.querySelector('.alifshop-installment-amount').querySelector('.price');
-                installmentAmount.innerHTML = `PKR ${(price / <?= $numberOfInstallments; ?>).toFixed(2)}`;
-            }
+            checkShowWidget()
         }
     });
 </script>
+
+
 
