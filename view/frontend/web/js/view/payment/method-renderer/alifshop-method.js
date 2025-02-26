@@ -48,10 +48,11 @@ define([
         },
 
         getDiscountAppliedErrMsg: function () {
+            var discountCount = this.getHasSpecialPrice()
             var totals = quote.getTotals()();
             return (totals.coupon_code)
                 ? "Unable to apply a discount code for Pay In Instalments. Please try again."
-                : "Unable to offer Pay In Instalments for discounted items. Please try again."
+                : `Items above ${discountCount}% discount are not available on Alif Shop`
         },
 
         getHasSpecialPrice: function() {
@@ -63,7 +64,7 @@ define([
                 async: false,
                 success: function (response) {
                     if (response.has_special_price) {
-                        hasSpecialPrice = true;
+                        hasSpecialPrice = response.has_special_price;
                     }
                 },
                 error: function () {

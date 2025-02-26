@@ -1,11 +1,11 @@
-<?php if($block->canShowBlock()): ?>
-
 <?php
 $imagePath = $block->getLogoUrl();
 $installmentText = $block->getInstallmentInfo();
 $installmentAmount = $block->getInstallmentAmount();
 $numberOfInstallments = $block->getNumberOfInstallments();
 $productId = $block->getProductId();
+$maxDiscountCount = $block->getMaxDiscountCountForOrder();
+$canShowBlock = $block->canShowBlock();
 ?>
 
 <style>
@@ -20,26 +20,62 @@ $productId = $block->getProductId();
     .alifshop-installment-amount {
         color: green;
     }
+
 </style>
 
 <div class="installment-block">
-    <img class="alifshop-logo" src="<?= $escaper->escapeUrl($imagePath) ?>" alt="Alif Shop Logo" />
+    <img class="alifshop-logo" src="<?= $escaper->escapeUrl($imagePath) ?>" alt="Alif Shop Logo"/>
     <br/>
     <p class="alifshop-installment-text">
-        <?=  $installmentText . " " ?>
+        <?= $installmentText . " " ?>
         <span class="alifshop-installment-amount"><?= $installmentAmount; ?></span>
     </p>
 </div>
 
 <script>
+
+    var maxDiscount = <?= $maxDiscountCount ?>;
+    function parseCurrency(currencyString) {
+        let match = currencyString.match(/[\d,\.]+/g);
+        if (!match) return null;
+
+        let rawNumber = match[0];
+        if (rawNumber.includes(',') && rawNumber.includes('.')) {
+            if (rawNumber.lastIndexOf(',') > rawNumber.lastIndexOf('.')) {
+                rawNumber = rawNumber.replace(/\./g, '').replace(',', '.');
+            } else {
+                rawNumber = rawNumber.replace(/,/g, '');
+            }
+        } else {
+            if (rawNumber.includes(',')) {
+                rawNumber = rawNumber.replace(',', '.');
+            }
+        }
+
+        return parseFloat(rawNumber);
+    }
+
+    function checkShowWidget() {
+        const mainPrice = document.getElementById('product-price-' + <?= $productId ?>).querySelector('.price');
+        const oldPriceHTML = document.getElementById('old-price-' + <?= $productId ?>).querySelector('.price');
+        let price = parseCurrency(mainPrice.outerText)
+        let oldPrice = parseCurrency(oldPriceHTML.outerText)
+        let discount = (oldPrice - price) / oldPrice * 100;
+        if (discount > maxDiscount) {
+            document.querySelector('.installment-block').style.display = 'none';
+        } else {
+            document.querySelector('.installment-block').style.display = 'block';
+            const installmentAmount = document.querySelector('.alifshop-installment-amount').querySelector('.price');
+            installmentAmount.innerHTML = `PKR ${(price / <?= $numberOfInstallments; ?>).toFixed(2)}`;
+        }
+    }
+
+    checkShowWidget()
     document.body.addEventListener('click', (event) => {
         if (event.target.classList.contains('swatch-option')) {
-            const mainPrice = document.getElementById('product-price-' + <?= $productId ?>).querySelector('.price');
-            const price = mainPrice.innerHTML.match(/-?\d+(\.\d+)?/);
-            const installmentAmount = document.querySelector('.alifshop-installment-amount').querySelector('.price');
-            installmentAmount.innerHTML = `PKR ${(parseFloat(price[0]) / <?= $numberOfInstallments; ?>).toFixed(2)}`;
+            checkShowWidget()
         }
     });
 </script>
 
-<?php endif; ?>
+

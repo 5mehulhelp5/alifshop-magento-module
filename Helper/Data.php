@@ -182,7 +182,7 @@ class Data
 
     /**
      * Check if product has a valid special price
-     * 
+     *
      * @param \Magento\Catalog\Model\Product $product
      * @return boolean
      */
@@ -191,7 +191,7 @@ class Data
         if ($product->getTypeId() === 'configurable') {
             // Get associated simple products
             $associatedProducts = $product->getTypeInstance()->getUsedProducts($product);
-            
+
             foreach ($associatedProducts as $simpleProduct) {
                 if ($this->isSpecialPriceValid($simpleProduct)) {
                     return true;
@@ -207,39 +207,47 @@ class Data
 
     /**
      * Check if a simple product has a valid special price
-     * 
+     *
      * @param \Magento\Catalog\Model\Product $product
      * @return boolean
      */
     private function isSpecialPriceValid($product) {
         $specialPrice = $product->getSpecialPrice();
         $regularPrice = $product->getPrice();
-
+        $maxDiscount = $this->getMaxDiscountNumberForOrder();
         // Check if special price is set and less than regular price
         if ($specialPrice && $specialPrice < $regularPrice) {
             // Get special from and to dates
+
             $specialFromDate = $product->getSpecialFromDate();
             $specialToDate = $product->getSpecialToDate();
-
             // Get current date
             $currentDate = new \DateTime();
+            $discount = ($regularPrice - $specialPrice) / $regularPrice * 100;
 
+            // Validate special price based on the date range
+            if (($specialFromDate === null || $currentDate >= $specialFromDate) &&
+                ($specialToDate === null || $currentDate <= $specialToDate) &&
+                $discount > $maxDiscount
+            ) {
+                return true; // Special price is valid
+            }
             // Check if special price is within the date range
-            if ($specialFromDate) {
-                $fromDate = new \DateTime($specialFromDate);
-                if ($currentDate < $fromDate) {
-                    return false; // Special price not yet active
-                }
-            }
+//            if ($specialFromDate) {
+//                $fromDate = new \DateTime($specialFromDate);
+//                if ($currentDate < $fromDate) {
+//                    return false; // Special price not yet active
+//                }
+//            }
+//
+//            if ($specialToDate) {
+//                $toDate = new \DateTime($specialToDate);
+//                if ($currentDate > $toDate) {
+//                    return false; // Special price has expired
+//                }
+//            }
 
-            if ($specialToDate) {
-                $toDate = new \DateTime($specialToDate);
-                if ($currentDate > $toDate) {
-                    return false; // Special price has expired
-                }
-            }
-
-            return true; // Valid special price
+            return false; // Valid special price
         }
 
         return false; // No valid special price
@@ -334,4 +342,47 @@ class Data
 
         return $minOrderTotal;
     }
+    /**
+     * Get Max Order total value
+     */
+    public function getMaxDiscountNumberForOrder()
+    {
+        $cacheKey = 'alifshop_max_discount_number';
+        $cachedData = $this->cache->load($cacheKey);
+        $cacheTtl = (int) $this->getAlifShopConfig('min_order_total_ttl') ?? 43200;
+
+        if ($cachedData) {
+            $this->logger->info('sending from cache');
+            return $this->serializer->unserialize($cachedData);
+        }
+
+        $apiEndpoint = $this->getAlifShopConfig("api_endpoint") . "/merchant";
+        $cashboxToken = $this->getAlifShopConfig("cashbox_token");
+        if (!$apiEndpoint || !$cashboxToken) {
+            return null;
+        }
+
+        $this->curl->addHeader('Content-Type', 'application/json');
+        $this->curl->addHeader('Accept', 'application/json');
+        $this->curl->addHeader('Cashbox-token', $cashboxToken);
+        $this->curl->get($apiEndpoint);
+
+        $response = $this->curl->getBody();
+        $responseArray = json_decode($response, true);
+        $maxDiscountNumberForOrder = isset($responseArray['min_acceptable_product_discount'])
+            ? $responseArray['min_acceptable_product_discount']
+            : 0;
+        // Cache the result for 12 hours (43200 seconds)
+        $this->cache->save(
+            $this->serializer->serialize($maxDiscountNumberForOrder),
+            $cacheKey,
+            ['alifshop_cache'],
+            $cacheTtl
+        );
+
+        $this->logger->info('sending from API response');
+
+        return $maxDiscountNumberForOrder;
+    }
+
 }
