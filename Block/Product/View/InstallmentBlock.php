@@ -85,4 +85,8 @@ class InstallmentBlock extends Template
         return $product->getId();
     }
 
+    public function getMaxDiscountCountForOrder()
+    {
+        return $this->_helper->getMaxDiscountNumberForOrder();
+    }
 }
