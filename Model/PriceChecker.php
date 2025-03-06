@@ -23,7 +23,7 @@ class PriceChecker
         $maxDiscount = $this->helper->getMaxDiscountNumberForOrder();
         foreach ($quote->getAllItems() as $item) {
             $product = $item->getProduct();
-            $specialPrice = $product->getSpecialPrice();
+            $specialPrice = $product->getFinalPrice();
             $price = $product->getPrice();
             // Check if special price exists and is less than the regular price
             if ($specialPrice && $specialPrice < $price) {

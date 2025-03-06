@@ -212,7 +212,7 @@ class Data
      * @return boolean
      */
     private function isSpecialPriceValid($product) {
-        $specialPrice = $product->getSpecialPrice();
+        $specialPrice = $product->getFinalPrice();
         $regularPrice = $product->getPrice();
         $maxDiscount = $this->getMaxDiscountNumberForOrder();
         // Check if special price is set and less than regular price
