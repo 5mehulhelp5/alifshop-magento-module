@@ -29,6 +29,12 @@
 				<field id="product_page_installement_instructions" type="textarea" sortOrder="70" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
 					<label>Product Page Installment Instructions</label>
 				</field>
+
+				<field id="max_discount" type="text" sortOrder="30" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+					<label>Max Discount (%)</label>
+					<backend_model>AlifShop\AlifShop\Model\Config\Backend\MaxDiscount</backend_model>
+					<comment>Allowed values: 0 - 100</comment>
+				</field>
 			</group>
 		</section>
 	</system>

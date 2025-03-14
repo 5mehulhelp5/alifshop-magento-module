@@ -345,44 +345,49 @@ class Data
     /**
      * Get Max Order total value
      */
+//    public function getMaxDiscountNumberForOrder()
+//    {
+//        $cacheKey = 'alifshop_max_discount_number';
+//        $cachedData = $this->cache->load($cacheKey);
+//        $cacheTtl = (int) $this->getAlifShopConfig('min_order_total_ttl') ?? 43200;
+//
+//        if ($cachedData) {
+//            $this->logger->info('sending from cache');
+//            return $this->serializer->unserialize($cachedData);
+//        }
+//
+//        $apiEndpoint = $this->getAlifShopConfig("api_endpoint") . "/merchant";
+//        $cashboxToken = $this->getAlifShopConfig("cashbox_token");
+//        if (!$apiEndpoint || !$cashboxToken) {
+//            return null;
+//        }
+//
+//        $this->curl->addHeader('Content-Type', 'application/json');
+//        $this->curl->addHeader('Accept', 'application/json');
+//        $this->curl->addHeader('Cashbox-token', $cashboxToken);
+//        $this->curl->get($apiEndpoint);
+//
+//        $response = $this->curl->getBody();
+//        $responseArray = json_decode($response, true);
+//        $maxDiscountNumberForOrder = isset($responseArray['min_acceptable_product_discount'])
+//            ? $responseArray['min_acceptable_product_discount']
+//            : 0;
+//        // Cache the result for 12 hours (43200 seconds)
+//        $this->cache->save(
+//            $this->serializer->serialize($maxDiscountNumberForOrder),
+//            $cacheKey,
+//            ['alifshop_cache'],
+//            $cacheTtl
+//        );
+//
+//        $this->logger->info('sending from API response');
+//
+//        return $maxDiscountNumberForOrder;
+//    }
+
     public function getMaxDiscountNumberForOrder()
     {
-        $cacheKey = 'alifshop_max_discount_number';
-        $cachedData = $this->cache->load($cacheKey);
-        $cacheTtl = (int) $this->getAlifShopConfig('min_order_total_ttl') ?? 43200;
-
-        if ($cachedData) {
-            $this->logger->info('sending from cache');
-            return $this->serializer->unserialize($cachedData);
-        }
-
-        $apiEndpoint = $this->getAlifShopConfig("api_endpoint") . "/merchant";
-        $cashboxToken = $this->getAlifShopConfig("cashbox_token");
-        if (!$apiEndpoint || !$cashboxToken) {
-            return null;
-        }
-
-        $this->curl->addHeader('Content-Type', 'application/json');
-        $this->curl->addHeader('Accept', 'application/json');
-        $this->curl->addHeader('Cashbox-token', $cashboxToken);
-        $this->curl->get($apiEndpoint);
-
-        $response = $this->curl->getBody();
-        $responseArray = json_decode($response, true);
-        $maxDiscountNumberForOrder = isset($responseArray['min_acceptable_product_discount'])
-            ? $responseArray['min_acceptable_product_discount']
-            : 0;
-        // Cache the result for 12 hours (43200 seconds)
-        $this->cache->save(
-            $this->serializer->serialize($maxDiscountNumberForOrder),
-            $cacheKey,
-            ['alifshop_cache'],
-            $cacheTtl
-        );
-
-        $this->logger->info('sending from API response');
-
-        return $maxDiscountNumberForOrder;
+        return (float) $this->getAlifShopConfig('max_discount') ?? 0;
     }
 
 }
