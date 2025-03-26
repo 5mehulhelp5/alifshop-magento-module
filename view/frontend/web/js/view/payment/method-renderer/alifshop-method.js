@@ -43,8 +43,9 @@ define([
         },
 
         getIsDiscountApplied: function () {
-            var totals = quote.getTotals()();
-            return (totals && (totals.coupon_code || totals.discount_amount !== 0)) || (this.getHasSpecialPrice() === false)
+            var specialPrice = this.getHasSpecialPrice()
+
+            return (totals && (totals.coupon_code || totals.discount_amount !== 0)) || specialPrice !== false;
         },
 
         getDiscountAppliedErrMsg: function () {
@@ -63,9 +64,7 @@ define([
                 dataType: 'json',
                 async: false,
                 success: function (response) {
-                    if (response.has_special_price) {
-                        hasSpecialPrice = response.has_special_price;
-                    }
+                    hasSpecialPrice = response.has_special_price;
                 },
                 error: function () {
                     console.error('Error checking for special price.');
