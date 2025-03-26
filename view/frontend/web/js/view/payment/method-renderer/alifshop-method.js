@@ -44,11 +44,11 @@ define([
 
         getIsDiscountApplied: function () {
             var totals = quote.getTotals()();
-            return (totals && (totals.coupon_code || totals.discount_amount !== 0)) || this.getHasSpecialPrice()
+            return (totals && (totals.coupon_code || totals.discount_amount !== 0)) || (this.getHasSpecialPrice() === false)
         },
 
         getDiscountAppliedErrMsg: function () {
-            var discountCount = this.getHasSpecialPrice()
+            var discountCount = Number(this.getHasSpecialPrice())
             var totals = quote.getTotals()();
             return (totals.coupon_code)
                 ? "Unable to apply a discount code for Pay In Instalments. Please try again."
