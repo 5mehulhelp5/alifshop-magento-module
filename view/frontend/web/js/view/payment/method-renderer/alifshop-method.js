@@ -43,6 +43,7 @@ define([
         },
 
         getIsDiscountApplied: function () {
+            var totals = quote.getTotals()();
             var specialPrice = this.getHasSpecialPrice()
 
             return (totals && (totals.coupon_code || totals.discount_amount !== 0)) || specialPrice !== false;
