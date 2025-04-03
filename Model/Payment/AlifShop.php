@@ -184,13 +184,13 @@ class AlifShop extends AbstractMethod
                 continue;
             }
 
-            $price = ($item->getParentItem()) 
-                    ? $item->getParentItem()->getPrice()
-                    : $item->getPrice();
-            $rowTotal = ($item->getParentItem()) 
-                    ? $item->getParentItem()->getRowTotal()
-                    : $item->getRowTotal();
-            
+            $finalPrice = ($item->getParentItem())
+                ? $item->getParentItem()->getPrice()
+                : $item->getPrice();
+            $price = $item->getBaseOriginalPrice();
+            $rowTotal = ($item->getParentItem())
+                ? $item->getParentItem()->getRowTotal()
+                : $item->getRowTotal();
             $data['items'][] = [
                 'item_id' => $item->getQuoteItemId(),
                 'product_id' => $item->getProductId(),
@@ -198,7 +198,7 @@ class AlifShop extends AbstractMethod
                 'name' => $item->getName(),
                 'quantity' => $item->getQtyOrdered(),
                 'price' => $price * 100,
-                "final_price" => $price * 100,
+                "final_price" => $finalPrice * 100,
                 "tax_amount" => floatval($item->getTaxAmount()),
                 "discount" => floatval($item->getDiscountAmount()),
                 "currency_code" => $this->_helper->getCurrentCurrencyCode(),
