@@ -191,6 +191,7 @@ class AlifShop extends AbstractMethod
             $rowTotal = ($item->getParentItem())
                 ? $item->getParentItem()->getRowTotal()
                 : $item->getRowTotal();
+            $discount = 100 - ($finalPrice / $price) * 100;
             $data['items'][] = [
                 'item_id' => $item->getQuoteItemId(),
                 'product_id' => $item->getProductId(),
@@ -199,9 +200,8 @@ class AlifShop extends AbstractMethod
                 'quantity' => $item->getQtyOrdered(),
                 'price' => $price * 100,
                 "final_price" => $price * 100,
-                'price_with_discount' => $finalPrice * 100,
                 "tax_amount" => floatval($item->getTaxAmount()),
-                "discount" => floatval($item->getDiscountAmount()),
+                "discount" => floatval($discount),
                 "currency_code" => $this->_helper->getCurrentCurrencyCode(),
                 'row_total' => $rowTotal * 100,
             ];
