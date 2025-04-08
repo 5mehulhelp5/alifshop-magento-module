@@ -191,7 +191,14 @@ class AlifShop extends AbstractMethod
             $rowTotal = ($item->getParentItem())
                 ? $item->getParentItem()->getRowTotal()
                 : $item->getRowTotal();
-            $discount = 100 - ($finalPrice / $price) * 100;
+            if($price != 0){
+                $discount = 100 - ($finalPrice / $price) * 100;
+            }
+            else
+            {
+                $discount = 0;
+            }
+
             $data['items'][] = [
                 'item_id' => $item->getQuoteItemId(),
                 'product_id' => $item->getProductId(),
