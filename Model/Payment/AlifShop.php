@@ -205,7 +205,7 @@ class AlifShop extends AbstractMethod
                 'img_url' => $this->_helper->getOrderItemImageUrl($item),
                 'name' => $item->getName(),
                 'quantity' => $item->getQtyOrdered(),
-                'price' => $finalPrice * 100,
+                'price' => ($price ?? $finalPrice) * 100,
                 "final_price" => $finalPrice * 100,
                 "tax_amount" => floatval($item->getTaxAmount()),
                 "discount" => floatval($discount),
