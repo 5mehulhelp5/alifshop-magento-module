@@ -60,7 +60,7 @@ $canShowBlock = $block->canShowBlock();
         const oldPriceHTML = document.getElementById('old-price-' + <?= $productId ?>).querySelector('.price');
         let price = parseCurrency(mainPrice.outerText)
         let oldPrice = parseCurrency(oldPriceHTML.outerText)
-        let discount = (oldPrice - price) / oldPrice * 100;
+        let discount = +((oldPrice-price)/oldPrice*100).toFixed(2);
         if (discount > maxDiscount) {
             document.querySelector('.installment-block').style.display = 'none';
         } else {
